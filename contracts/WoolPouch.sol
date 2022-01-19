@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT LICENSE 
+// SPDX-License-Identifier: MIT LICENSE  
 
 pragma solidity ^0.8.0;
 import "./Initializable.sol";
@@ -82,6 +82,23 @@ contract WoolPouch is ERC721Upgradeable, OwnableUpgradeable, PausableUpgradeable
     emit WoolClaimed(_msgSender(), tokenId, available);
   }
 
+  function claimMany(uint256[] calldata tokenIds) external whenNotPaused {
+    uint256 available;
+    uint256 totalAvailable;
+    for (uint i = 0; i < tokenIds.length; i++) {
+      require(ownerOf(tokenIds[i]) == _msgSender(), "SWIPER NO SWIPING");
+      available = amountAvailable(tokenIds[i]);
+      Pouch storage pouch = pouches[tokenIds[i]];
+      pouch.lastClaimTimestamp = uint56(block.timestamp);
+      if (!pouch.initialClaimed) pouch.initialClaimed = true;
+      emit WoolClaimed(_msgSender(), tokenIds[i], available);
+      
+      totalAvailable += available;
+    }
+    require(totalAvailable > 0, "NO MORE EARNINGS AVAILABLE");
+    wool.mint(_msgSender(), totalAvailable);
+  }
+
   /**
    * the amount of WOOL currently available to claim in a WOOL pouch
    * @param tokenId the token to check the WOOL for
@@ -113,6 +130,18 @@ contract WoolPouch is ERC721Upgradeable, OwnableUpgradeable, PausableUpgradeable
       lastClaimTimestamp: uint56(block.timestamp),
       startTimestamp: uint56(block.timestamp),
       amount: uint120(amount - START_VALUE)
+    });
+    _mint(to, minted);
+  }
+
+  function mintWithoutClaimable(address to, uint128 amount, uint16 duration) external {
+    require(controllers[msg.sender], "Only controllers can mint");
+    pouches[++minted] = Pouch({
+      initialClaimed: true,
+      duration: duration,
+      lastClaimTimestamp: uint56(block.timestamp),
+      startTimestamp: uint56(block.timestamp),
+      amount: uint120(amount)
     });
     _mint(to, minted);
   }
