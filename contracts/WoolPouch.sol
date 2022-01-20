@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT LICENSE  
 
 pragma solidity ^0.8.0;
-import "./Initializable.sol";
-import "./OwnableUpgradeable.sol";
-import "./PausableUpgradeable.sol";
-import "./ERC721Upgradeable.sol";
-import "./Strings.sol";
-import "./WOOL.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./IDateTime.sol";
 
-contract WoolPouch is ERC721Upgradeable, OwnableUpgradeable, PausableUpgradeable {
+contract WoolPouch is ERC721, Ownable, Pausable {
   
   /*
 
@@ -22,7 +21,7 @@ contract WoolPouch is ERC721Upgradeable, OwnableUpgradeable, PausableUpgradeable
     A longer cooldown on transfers was considered, but ultimately not implemented as it introduces UX issues and additional complexity.
   
   */
-
+  using SafeERC20 for IERC20;
   using Strings for uint256;
   using Strings for uint16;
 
@@ -51,15 +50,11 @@ contract WoolPouch is ERC721Upgradeable, OwnableUpgradeable, PausableUpgradeable
     uint256 amount
   );
 
-  WOOL public wool;
+  IERC20 public wool;
   IDateTime dateTime;
 
-  function initialize(address _wool, address _dateTime) external initializer {
-    __Ownable_init();
-    __Pausable_init();
-    __ERC721_init("Wool Pouch", "WPOUCH");
-
-    wool = WOOL(_wool);
+  constructor(address _wool, address _dateTime) ERC721("Wool Pouch", "WPOUCH") {
+    wool = IERC20(_wool);
     dateTime = IDateTime(_dateTime);
 
     _pause();
@@ -78,7 +73,7 @@ contract WoolPouch is ERC721Upgradeable, OwnableUpgradeable, PausableUpgradeable
     Pouch storage pouch = pouches[tokenId];
     pouch.lastClaimTimestamp = uint56(block.timestamp);
     if (!pouch.initialClaimed) pouch.initialClaimed = true;
-    wool.mint(_msgSender(), available);
+    wool.safeTransfer(_msgSender(), available);
     emit WoolClaimed(_msgSender(), tokenId, available);
   }
 
@@ -96,7 +91,7 @@ contract WoolPouch is ERC721Upgradeable, OwnableUpgradeable, PausableUpgradeable
       totalAvailable += available;
     }
     require(totalAvailable > 0, "NO MORE EARNINGS AVAILABLE");
-    wool.mint(_msgSender(), totalAvailable);
+    wool.safeTransfer(_msgSender(), totalAvailable);
   }
 
   /**
