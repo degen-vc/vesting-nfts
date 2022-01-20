@@ -35,8 +35,6 @@ contract WoolPouch is ERC721, Ownable, Pausable {
   uint256 public minted;
   mapping(uint256 => Pouch) public pouches;
 
-  uint256 public constant START_VALUE = 10000 ether;
-
   struct Pouch {
     uint16 duration; // stored in days, maxed at 2^16 days
     uint56 lastClaimTimestamp; // stored in seconds, uint56 can store 2 billion years 
@@ -119,7 +117,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
       duration: duration,
       lastClaimTimestamp: uint56(block.timestamp),
       startTimestamp: uint56(block.timestamp),
-      amount: uint120(amount - START_VALUE)
+      amount: uint120(amount)
     });
     _mint(to, minted);
   }
