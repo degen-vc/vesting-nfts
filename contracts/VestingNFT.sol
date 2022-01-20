@@ -113,6 +113,8 @@ contract WoolPouch is ERC721, Ownable, Pausable {
    */
   function mint(address to, uint128 amount, uint16 duration) external {
     require(controllers[msg.sender], "Only controllers can mint");
+    uint120 balance = uint120(wool.balanceOf(address(this)));
+    require(balance >= amount, "Not enought tokens for minting");
     pouches[++minted] = Pouch({
       duration: duration,
       lastClaimTimestamp: uint56(block.timestamp),
