@@ -34,10 +34,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
   uint256 public minted;
   mapping(uint256 => Pouch) public pouches;
 
-  uint256 public constant START_VALUE = 10000 ether;
-
   struct Pouch {
-    bool initialClaimed; // whether or not first 10,000 WOOL has been claimed
     uint16 duration; // stored in days, maxed at 2^16 days
     uint56 lastClaimTimestamp; // stored in seconds, uint56 can store 2 billion years 
     uint56 startTimestamp; // stored in seconds, uint56 can store 2 billion years 
@@ -72,7 +69,6 @@ contract WoolPouch is ERC721, Ownable, Pausable {
     require(available > 0, "NO MORE EARNINGS AVAILABLE");
     Pouch storage pouch = pouches[tokenId];
     pouch.lastClaimTimestamp = uint56(block.timestamp);
-    if (!pouch.initialClaimed) pouch.initialClaimed = true;
     wool.safeTransfer(_msgSender(), available);
     emit WoolClaimed(_msgSender(), tokenId, available);
   }
@@ -85,7 +81,6 @@ contract WoolPouch is ERC721, Ownable, Pausable {
       available = amountAvailable(tokenIds[i]);
       Pouch storage pouch = pouches[tokenIds[i]];
       pouch.lastClaimTimestamp = uint56(block.timestamp);
-      if (!pouch.initialClaimed) pouch.initialClaimed = true;
       emit WoolClaimed(_msgSender(), tokenIds[i], available);
       
       totalAvailable += available;
@@ -105,8 +100,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
       currentTimestamp = uint256(pouch.startTimestamp) + uint256(pouch.duration) * SECONDS_PER_DAY;
     if (pouch.lastClaimTimestamp > currentTimestamp) return 0;
     uint256 elapsed = currentTimestamp - pouch.lastClaimTimestamp;
-    return elapsed * uint256(pouch.amount) / (uint256(pouch.duration) * SECONDS_PER_DAY) + 
-      (pouch.initialClaimed ? 0 : START_VALUE);
+    return elapsed * uint256(pouch.amount) / (uint256(pouch.duration) * SECONDS_PER_DAY);
   }
 
   /** CONTROLLER */
@@ -118,21 +112,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
    */
   function mint(address to, uint128 amount, uint16 duration) external {
     require(controllers[msg.sender], "Only controllers can mint");
-    require(amount >= START_VALUE, "Insufficient pouch");
     pouches[++minted] = Pouch({
-      initialClaimed: false,
-      duration: duration,
-      lastClaimTimestamp: uint56(block.timestamp),
-      startTimestamp: uint56(block.timestamp),
-      amount: uint120(amount - START_VALUE)
-    });
-    _mint(to, minted);
-  }
-
-  function mintWithoutClaimable(address to, uint128 amount, uint16 duration) external {
-    require(controllers[msg.sender], "Only controllers can mint");
-    pouches[++minted] = Pouch({
-      initialClaimed: true,
       duration: duration,
       lastClaimTimestamp: uint56(block.timestamp),
       startTimestamp: uint56(block.timestamp),
