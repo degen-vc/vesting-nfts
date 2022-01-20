@@ -1,5 +1,8 @@
 {
   "name": "hardhat-project",
+  "scripts": {
+    "prettier": "prettier --write 'contracts/**/*.sol'"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",
