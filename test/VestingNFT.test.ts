@@ -15,6 +15,7 @@ import {
 describe("VestingNFT", () => {
   const ganache = new Ganache();
   const initSupply: BigNumber = parseEther("100000000");
+  const SECONDS_IN_DAY = 24 * 60 * 60;
 
   let signers: SignerWithAddress[];
   let owner: SignerWithAddress;
@@ -39,7 +40,6 @@ describe("VestingNFT", () => {
       dateTime.address
     );
 
-    await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
     await ganache.snapshot();
   });
 
@@ -48,6 +48,7 @@ describe("VestingNFT", () => {
   });
 
   it("Should be possible to mint NFT and claim tokens from it", async () => {
+    await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
     await vestingNFT
       .connect(signers[0])
       .addController(await owner.getAddress());
@@ -64,12 +65,79 @@ describe("VestingNFT", () => {
       1
     );
 
-    await ganache.increaseTime(60 * 60 * 24);
+    await ganache.increaseTime(SECONDS_IN_DAY);
 
     await vestingNFT.connect(signers[1]).claim(1);
 
     expect(await token.balanceOf(await signers[1].getAddress()))
       .to.be.least(parseEther("5000"))
       .and.to.be.below(parseEther("5001"));
+  });
+
+  it("Should be NOT possible to mint NFT if not enought tokens on contract balance", async () => {
+    await token
+      .connect(signers[0])
+      .transfer(vestingNFT.address, parseEther("40000"));
+    await vestingNFT
+      .connect(signers[0])
+      .addController(await owner.getAddress());
+
+    await vestingNFT.connect(signers[0]).setPaused(false);
+
+    await expect(
+      vestingNFT.mint(await signers[1].getAddress(), parseEther("50000"), 10)
+    ).to.be.revertedWith("Not enought tokens for minting");
+  });
+
+  it("Should be NOT possible to mint few NFTs if their balance sum grather than contract balance", async () => {
+    await token
+      .connect(signers[0])
+      .transfer(vestingNFT.address, parseEther("40000"));
+    await vestingNFT
+      .connect(signers[0])
+      .addController(await owner.getAddress());
+
+    await vestingNFT.connect(signers[0]).setPaused(false);
+
+    await vestingNFT.mint(
+      await signers[1].getAddress(),
+      parseEther("30000"),
+      10
+    );
+
+    expect(await vestingNFT.balanceOf(await signers[1].getAddress())).to.be.eq(
+      1
+    );
+
+    await expect(
+      vestingNFT.mint(await signers[1].getAddress(), parseEther("10001"), 10)
+    ).to.be.revertedWith("Not enought tokens for minting");
+  });
+
+  it("Should be possible to mint NFT and claim full distibution from it after duration period ends", async () => {
+    await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
+    await vestingNFT
+      .connect(signers[0])
+      .addController(await owner.getAddress());
+
+    await vestingNFT.connect(signers[0]).setPaused(false);
+
+    await vestingNFT.mint(
+      await signers[1].getAddress(),
+      parseEther("50000"),
+      10
+    );
+
+    expect(await vestingNFT.balanceOf(await signers[1].getAddress())).to.be.eq(
+      1
+    );
+
+    await ganache.increaseTime(SECONDS_IN_DAY * 10);
+
+    await vestingNFT.connect(signers[1]).claim(1);
+
+    expect(await token.balanceOf(await signers[1].getAddress())).to.be.eq(
+      parseEther("50000")
+    );
   });
 });

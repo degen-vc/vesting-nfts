@@ -31,6 +31,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
     mapping(address => bool) public controllers;
 
     uint256 public minted;
+    uint120 private reserved;
     mapping(uint256 => Pouch) public pouches;
 
     struct Pouch {
@@ -66,6 +67,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
         require(available > 0, "NO MORE EARNINGS AVAILABLE");
         Pouch storage pouch = pouches[tokenId];
         pouch.lastClaimTimestamp = uint56(block.timestamp);
+        reserved -= uint120(available);
         wool.safeTransfer(_msgSender(), available);
         emit WoolClaimed(_msgSender(), tokenId, available);
     }
@@ -83,6 +85,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
             totalAvailable += available;
         }
         require(totalAvailable > 0, "NO MORE EARNINGS AVAILABLE");
+        reserved -= uint120(totalAvailable);
         wool.safeTransfer(_msgSender(), totalAvailable);
     }
 
@@ -124,7 +127,8 @@ contract WoolPouch is ERC721, Ownable, Pausable {
     ) external {
         require(controllers[msg.sender], "Only controllers can mint");
         uint120 balance = uint120(wool.balanceOf(address(this)));
-        require(balance >= amount, "Not enought tokens for minting");
+        require(balance - reserved >= amount, "Not enought tokens for minting");
+        reserved += uint120(amount);
         pouches[++minted] = Pouch({
             duration: duration,
             lastClaimTimestamp: uint56(block.timestamp),
