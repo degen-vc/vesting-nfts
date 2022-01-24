@@ -74,7 +74,7 @@ describe("VestingNFT", () => {
       .and.to.be.below(parseEther("5001"));
   });
 
-  it("Should be NOT possible to mint NFT if not enought tokens on contract balance", async () => {
+  it("Should be NOT possible to mint NFT if not enough tokens on contract balance", async () => {
     await token
       .connect(signers[0])
       .transfer(vestingNFT.address, parseEther("40000"));
@@ -86,10 +86,10 @@ describe("VestingNFT", () => {
 
     await expect(
       vestingNFT.mint(await signers[1].getAddress(), parseEther("50000"), 10)
-    ).to.be.revertedWith("Not enought tokens for minting");
+    ).to.be.revertedWith("Not enough tokens for minting");
   });
 
-  it("Should be NOT possible to mint few NFTs if their balance sum grather than contract balance", async () => {
+  it("Should be NOT possible to mint few NFTs if their balance sum grater than contract balance", async () => {
     await token
       .connect(signers[0])
       .transfer(vestingNFT.address, parseEther("40000"));
@@ -111,10 +111,10 @@ describe("VestingNFT", () => {
 
     await expect(
       vestingNFT.mint(await signers[1].getAddress(), parseEther("10001"), 10)
-    ).to.be.revertedWith("Not enought tokens for minting");
+    ).to.be.revertedWith("Not enough tokens for minting");
   });
 
-  it("Should be possible to mint NFT and claim full distibution from it after duration period ends", async () => {
+  it("Should be possible to mint NFT and claim full distribution from it after duration period ends", async () => {
     await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
     await vestingNFT
       .connect(signers[0])
