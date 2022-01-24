@@ -47,7 +47,7 @@ describe("VestingNFT", () => {
     return ganache.revert();
   });
 
-  it("Should be possible to mint NFT and claim tokens from it", async () => {
+  it("Should be possible to mint NFT, claim tokens from it and transfer NFT after", async () => {
     await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
     await vestingNFT
       .connect(signers[0])
@@ -72,6 +72,14 @@ describe("VestingNFT", () => {
     expect(await token.balanceOf(await signers[1].getAddress()))
       .to.be.least(parseEther("5000"))
       .and.to.be.below(parseEther("5001"));
+
+    await vestingNFT
+      .connect(signers[1])
+      .transferFrom(signers[1].address, signers[2].address, 1);
+
+    expect(await vestingNFT.balanceOf(await signers[1].getAddress())).to.be.eq(
+      0
+    );
   });
 
   it("Should be NOT possible to mint NFT if not enough tokens on contract balance", async () => {
@@ -139,5 +147,67 @@ describe("VestingNFT", () => {
     expect(await token.balanceOf(await signers[1].getAddress())).to.be.eq(
       parseEther("50000")
     );
+  });
+
+  it("Should be NOT possible to claim tokens if paused", async () => {
+    await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
+    await vestingNFT
+      .connect(signers[0])
+      .addController(await owner.getAddress());
+
+    expect(await vestingNFT.paused()).to.be.eq(true);
+
+    await vestingNFT.mint(
+      await signers[1].getAddress(),
+      parseEther("50000"),
+      10
+    );
+
+    expect(await vestingNFT.balanceOf(await signers[1].getAddress())).to.be.eq(
+      1
+    );
+
+    await ganache.increaseTime(SECONDS_IN_DAY * 1);
+
+    await expect(vestingNFT.connect(signers[1]).claim(1)).to.be.revertedWith(
+      "Pausable: paused"
+    );
+  });
+
+  it("Should be possible to claim only 1/10 of tokens after 1/10 duration period", async () => {
+    await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
+    await vestingNFT
+      .connect(signers[0])
+      .addController(await owner.getAddress());
+
+    await vestingNFT.connect(signers[0]).setPaused(false);
+
+    await vestingNFT.mint(
+      await signers[1].getAddress(),
+      parseEther("10000"),
+      10
+    );
+
+    expect(await vestingNFT.balanceOf(await signers[1].getAddress())).to.be.eq(
+      1
+    );
+
+    await ganache.increaseTime(SECONDS_IN_DAY * 1);
+
+    await vestingNFT.connect(signers[1]).claim(1);
+
+    expect(await token.balanceOf(await signers[1].getAddress()))
+      .to.be.least(parseEther("1000"))
+      .and.to.be.below(parseEther("1001"));
+  });
+
+  it("Should be NOT possible to mint NFT from non controller address", async () => {
+    await token.connect(signers[0]).transfer(vestingNFT.address, initSupply);
+
+    await vestingNFT.connect(signers[0]).setPaused(false);
+
+    await expect(
+      vestingNFT.mint(await signers[1].getAddress(), parseEther("50000"), 10)
+    ).to.be.revertedWith("Only controllers can mint");
   });
 });
