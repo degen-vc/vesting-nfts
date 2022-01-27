@@ -2,13 +2,12 @@
 
 pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./utils/IDateTime.sol";
 
-contract WoolPouch is ERC721, Ownable, Pausable {
+contract WoolPouch is ERC721, Ownable {
     /*
 
   Security notes
@@ -51,8 +50,6 @@ contract WoolPouch is ERC721, Ownable, Pausable {
     {
         wool = IERC20(_wool);
         dateTime = IDateTime(_dateTime);
-
-        _pause();
     }
 
     /** EXTERNAL */
@@ -61,7 +58,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
      * claim WOOL tokens from a pouch
      * @param tokenId the token to claim WOOL from
      */
-    function claim(uint256 tokenId) external whenNotPaused {
+    function claim(uint256 tokenId) external {
         require(ownerOf(tokenId) == _msgSender(), "SWIPER NO SWIPING");
         uint256 available = amountAvailable(tokenId);
         require(available > 0, "NO MORE EARNINGS AVAILABLE");
@@ -72,7 +69,7 @@ contract WoolPouch is ERC721, Ownable, Pausable {
         emit WoolClaimed(_msgSender(), tokenId, available);
     }
 
-    function claimMany(uint256[] calldata tokenIds) external whenNotPaused {
+    function claimMany(uint256[] calldata tokenIds) external {
         uint256 available;
         uint256 totalAvailable;
         for (uint256 i = 0; i < tokenIds.length; i++) {
@@ -193,14 +190,6 @@ contract WoolPouch is ERC721, Ownable, Pausable {
      */
     function removeController(address controller) external onlyOwner {
         controllers[controller] = false;
-    }
-
-    /**
-     * enables owner to pause / unpause minting
-     */
-    function setPaused(bool _paused) external onlyOwner {
-        if (_paused) _pause();
-        else _unpause();
     }
 
     /**
