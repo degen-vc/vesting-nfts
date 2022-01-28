@@ -46,7 +46,7 @@ contract WoolPouch is ERC721, Ownable {
     IDateTime dateTime;
 
     constructor(address _wool, address _dateTime)
-        ERC721("Wool Pouch", "WPOUCH")
+        ERC721("Scarcity veNFT", "SveNFT")
     {
         wool = IERC20(_wool);
         dateTime = IDateTime(_dateTime);
@@ -219,14 +219,14 @@ contract WoolPouch is ERC721, Ownable {
         return
             string(
                 abi.encodePacked(
-                    '<svg id="woolpouch" width="100%" height="100%" version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+                    '<svg id="scarcityvenft" width="100%" height="100%" version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                     '<image x="0" y="0" width="64" height="64" image-rendering="pixelated" preserveAspectRatio="xMidYMid" xlink:href="data:image/gif;base64,',
                     gif,
-                    '"/><text font-family="monospace"><tspan x="13" y="4" font-size="0.25em">Locked WOOL:</tspan><tspan id="g" x="38" y="4" font-size="0.25em">',
+                    '"/><text font-family="monospace"><tspan x="13" y="4" font-size="0.25em">Locked SGV:</tspan><tspan id="g" x="38" y="4" font-size="0.25em">',
                     (locked / 1 ether).toString(),
                     '</tspan></text><text font-family="monospace"><tspan x="9" y="9" font-size="0.25em">Unlock Period:</tspan><tspan id="b" x="38" y="9" font-size="0.25em">',
                     (daysRemaining).toString(),
-                    ' Days</tspan></text><text font-family="monospace"><tspan x="4" y="13" font-size="0.15em">Before transfer, remember to claim unlocked WOOL</tspan></text>',
+                    ' Days</tspan></text><text font-family="monospace"><tspan x="4" y="13" font-size="0.15em">Before transfer, remember to claim unlocked SGV</tspan></text>',
                     "</svg>"
                 )
             );
@@ -280,7 +280,7 @@ contract WoolPouch is ERC721, Ownable {
         string memory attributes = string(
             abi.encodePacked(
                 attributeForTypeAndValue(
-                    "Locked WOOL",
+                    "Locked SGV",
                     uint256(locked / 1 ether).toString(),
                     false
                 ),
@@ -363,9 +363,9 @@ contract WoolPouch is ERC721, Ownable {
         );
         string memory metadata = string(
             abi.encodePacked(
-                '{"name": "WOOL Pouch #',
+                '{"name": "Scarcity veNFT #',
                 tokenId.toString(),
-                '","description": "Sellers: before listing, claim any unlocked WOOL in your Pouch on the Wolf Game site.<br /><br />Buyers: When you purchase a WOOL Pouch, assume the previous owner has already claimed its unlocked WOOL. Locked WOOL, which unlocks over time, will be displayed on the image. Refresh the metadata to see the most up to date values.",',
+                '","description": "Sellers: before listing, claim any unlocked SGV in your SveNFT on the Scarcity site.<br /><br />Buyers: When you purchase a SveNFT, assume the previous owner has already claimed its unlocked SGV. Locked SGV, which unlocks over time, will be displayed on the image. Refresh the metadata to see the most up to date values.",',
                 '"image": "data:image/svg+xml;base64,',
                 base64(bytes(generateSVG(tokenId))),
                 '", "attributes":',
