@@ -53,8 +53,6 @@ describe("VestingNFT", () => {
     await token.connect(owner).transfer(vestingNFT.address, initSupply);
     await vestingNFT.connect(owner).addController(owner.address);
 
-    await vestingNFT.connect(owner).setPaused(false);
-
     await vestingNFT.mint(user.address, parseEther("50000"), 10);
 
     expect(await vestingNFT.balanceOf(user.address)).to.be.eq(1);
@@ -80,8 +78,6 @@ describe("VestingNFT", () => {
       .transfer(vestingNFT.address, parseEther("40000"));
     await vestingNFT.connect(owner).addController(owner.address);
 
-    await vestingNFT.connect(owner).setPaused(false);
-
     await expect(
       vestingNFT.mint(user.address, parseEther("50000"), 10)
     ).to.be.revertedWith("Not enough tokens for minting");
@@ -92,8 +88,6 @@ describe("VestingNFT", () => {
       .connect(owner)
       .transfer(vestingNFT.address, parseEther("40000"));
     await vestingNFT.connect(owner).addController(owner.address);
-
-    await vestingNFT.connect(owner).setPaused(false);
 
     await vestingNFT.mint(user.address, parseEther("30000"), 10);
 
@@ -108,8 +102,6 @@ describe("VestingNFT", () => {
     await token.connect(owner).transfer(vestingNFT.address, initSupply);
     await vestingNFT.connect(owner).addController(owner.address);
 
-    await vestingNFT.connect(owner).setPaused(false);
-
     await vestingNFT.mint(user.address, parseEther("50000"), 10);
 
     expect(await vestingNFT.balanceOf(user.address)).to.be.eq(1);
@@ -121,28 +113,9 @@ describe("VestingNFT", () => {
     expect(await token.balanceOf(user.address)).to.be.eq(parseEther("50000"));
   });
 
-  it("Should be NOT possible to claim tokens if paused", async () => {
-    await token.connect(owner).transfer(vestingNFT.address, initSupply);
-    await vestingNFT.connect(owner).addController(owner.address);
-
-    expect(await vestingNFT.paused()).to.be.eq(true);
-
-    await vestingNFT.mint(user.address, parseEther("50000"), 10);
-
-    expect(await vestingNFT.balanceOf(user.address)).to.be.eq(1);
-
-    await ganache.increaseTime(SECONDS_IN_DAY * 1);
-
-    await expect(vestingNFT.connect(user).claim(1)).to.be.revertedWith(
-      "Pausable: paused"
-    );
-  });
-
   it("Should be possible to claim only 1/10 of tokens after 1/10 duration period", async () => {
     await token.connect(owner).transfer(vestingNFT.address, initSupply);
     await vestingNFT.connect(owner).addController(owner.address);
-
-    await vestingNFT.connect(owner).setPaused(false);
 
     await vestingNFT.mint(user.address, parseEther("10000"), 10);
 
@@ -159,8 +132,6 @@ describe("VestingNFT", () => {
 
   it("Should be NOT possible to mint NFT from non controller address", async () => {
     await token.connect(owner).transfer(vestingNFT.address, initSupply);
-
-    await vestingNFT.connect(owner).setPaused(false);
 
     await expect(
       vestingNFT.mint(user.address, parseEther("50000"), 10)
