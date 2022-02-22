@@ -5,8 +5,8 @@ import { ethers } from "hardhat";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Ganache } from "./helpers/ganache";
 import {
-  WoolPouch__factory,
-  WoolPouch,
+  RarityVeNFT__factory,
+  RarityVeNFT,
   ERC20Mock__factory,
   ERC20Mock,
   DateTime__factory,
@@ -21,7 +21,7 @@ describe("VestingNFT", () => {
   let owner: SignerWithAddress;
   let user: SignerWithAddress;
   let token: ERC20Mock;
-  let vestingNFT: WoolPouch;
+  let vestingNFT: RarityVeNFT;
 
   beforeEach("Deploy and setup contracts", async () => {
     signers = await ethers.getSigners();
@@ -37,7 +37,7 @@ describe("VestingNFT", () => {
 
     const dateTime = await new DateTime__factory(owner).deploy();
 
-    vestingNFT = await new WoolPouch__factory(owner).deploy(
+    vestingNFT = await new RarityVeNFT__factory(owner).deploy(
       token.address,
       dateTime.address
     );
