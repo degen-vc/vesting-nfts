@@ -21,7 +21,7 @@ async function main() {
   logResult += log;
 
   [vestingNFT, log] = await deployer.deployAndVerify(
-    "contracts/WoolPouch.sol:WoolPouch",
+    "contracts/RarityVeNFT.sol:RarityVeNFT",
     SGV_TOKEN,
     dateTime.address
   );

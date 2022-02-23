@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./utils/IDateTime.sol";
 
-contract WoolPouch is ERC721, Ownable {
+contract RarityVeNFT is ERC721, Ownable {
     /*
 
   Security notes
@@ -46,7 +46,7 @@ contract WoolPouch is ERC721, Ownable {
     IDateTime dateTime;
 
     constructor(address _wool, address _dateTime)
-        ERC721("Scarcity veNFT", "SveNFT")
+        ERC721("Rarity veNFT", "RveNFT")
     {
         wool = IERC20(_wool);
         dateTime = IDateTime(_dateTime);
@@ -226,7 +226,7 @@ contract WoolPouch is ERC721, Ownable {
                     (locked / 1 ether).toString(),
                     '</tspan></text><text font-family="monospace"><tspan x="9" y="9" font-size="0.25em">Unlock Period:</tspan><tspan id="b" x="38" y="9" font-size="0.25em">',
                     (daysRemaining).toString(),
-                    ' Days</tspan></text><text font-family="monospace"><tspan x="4" y="13" font-size="0.15em">Before transfer, remember to claim unlocked SGV</tspan></text>',
+                    ' Days</tspan></text><text font-family="monospace"><tspan x="4" y="13" font-size="0.15em">Before transfer, remember to claim unlocked RGV</tspan></text>',
                     "</svg>"
                 )
             );
@@ -280,7 +280,7 @@ contract WoolPouch is ERC721, Ownable {
         string memory attributes = string(
             abi.encodePacked(
                 attributeForTypeAndValue(
-                    "Locked SGV",
+                    "Locked RGV",
                     uint256(locked / 1 ether).toString(),
                     false
                 ),
@@ -363,9 +363,9 @@ contract WoolPouch is ERC721, Ownable {
         );
         string memory metadata = string(
             abi.encodePacked(
-                '{"name": "Scarcity veNFT #',
+                '{"name": "Rarity veNFT #',
                 tokenId.toString(),
-                '","description": "Sellers: before listing, claim any unlocked SGV in your SveNFT on the Scarcity site.<br /><br />Buyers: When you purchase a SveNFT, assume the previous owner has already claimed its unlocked SGV. Locked SGV, which unlocks over time, will be displayed on the image. Refresh the metadata to see the most up to date values.",',
+                '","description": "Sellers: before listing, claim any unlocked RGV in your RveNFT on the Rarity 2 site. Buyers: When you purchase a RveNFT, assume the previous owner has already claimed its unlocked RGV. Locked RGV, which unlocks over time, will be displayed on the image. Refresh the metadata to see the most up to date values.",',
                 '"image": "data:image/svg+xml;base64,',
                 base64(bytes(generateSVG(tokenId))),
                 '", "attributes":',
