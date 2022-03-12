@@ -46,7 +46,7 @@ contract RarityVeNFT is ERC721, Ownable {
     IDateTime dateTime;
 
     constructor(address _wool, address _dateTime)
-        ERC721("Rarity veNFT", "RveNFT")
+        ERC721("Rarity 2 veNFT", "RveNFT")
     {
         wool = IERC20(_wool);
         dateTime = IDateTime(_dateTime);
@@ -222,7 +222,7 @@ contract RarityVeNFT is ERC721, Ownable {
                     '<svg id="scarcityvenft" width="100%" height="100%" version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                     '<image x="0" y="0" width="64" height="64" image-rendering="pixelated" preserveAspectRatio="xMidYMid" xlink:href="data:image/gif;base64,',
                     gif,
-                    '"/><text font-family="monospace"><tspan x="13" y="4" font-size="0.25em">Locked SGV:</tspan><tspan id="g" x="38" y="4" font-size="0.25em">',
+                    '"/><text font-family="monospace"><tspan x="13" y="4" font-size="0.25em">Locked RGV:</tspan><tspan id="g" x="38" y="4" font-size="0.25em">',
                     (locked / 1 ether).toString(),
                     '</tspan></text><text font-family="monospace"><tspan x="9" y="9" font-size="0.25em">Unlock Period:</tspan><tspan id="b" x="38" y="9" font-size="0.25em">',
                     (daysRemaining).toString(),
@@ -363,7 +363,7 @@ contract RarityVeNFT is ERC721, Ownable {
         );
         string memory metadata = string(
             abi.encodePacked(
-                '{"name": "Rarity veNFT #',
+                '{"name": "Rarity 2 veNFT #',
                 tokenId.toString(),
                 '","description": "Sellers: before listing, claim any unlocked RGV in your RveNFT on the Rarity 2 site. Buyers: When you purchase a RveNFT, assume the previous owner has already claimed its unlocked RGV. Locked RGV, which unlocks over time, will be displayed on the image. Refresh the metadata to see the most up to date values.",',
                 '"image": "data:image/svg+xml;base64,',
