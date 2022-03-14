@@ -24,7 +24,7 @@ contract RarityVeNFT is ERC721, Ownable {
     using Strings for uint16;
 
     uint256 constant SECONDS_PER_DAY = 1 days;
-    string gif;
+    string[] internal _gifParts;
 
     // a mapping from an address to whether or not it can mint / burn
     mapping(address => bool) public controllers;
@@ -192,12 +192,12 @@ contract RarityVeNFT is ERC721, Ownable {
         controllers[controller] = false;
     }
 
-    /**
-     * uploads a gif for the background of the NFT
-     * @param _gif the base64 encoded GIF
-     */
-    function uploadGIF(string calldata _gif) external onlyOwner {
-        gif = _gif;
+    function uploadGIF(string calldata _gifPart) external onlyOwner {
+        _gifParts.push(_gifPart);
+    }
+
+    function clearGIF() external onlyOwner {
+      delete _gifParts;
     }
 
     function generateSVG(uint256 tokenId)
@@ -205,6 +205,12 @@ contract RarityVeNFT is ERC721, Ownable {
         view
         returns (string memory)
     {
+
+        string memory gif;
+        for (uint i = 0; i < _gifParts.length; i++) {
+            gif = string(abi.encodePacked(gif, _gifParts[i]));
+        }
+
         Pouch memory pouch = pouches[tokenId];
         uint256 duration = uint256(pouch.duration) * SECONDS_PER_DAY;
         uint256 endTime = uint256(pouch.startTimestamp) + duration;
