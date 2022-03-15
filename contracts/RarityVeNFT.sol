@@ -225,7 +225,7 @@ contract RarityVeNFT is ERC721, Ownable {
         return
             string(
                 abi.encodePacked(
-                    '<svg id="scarcityvenft" width="100%" height="100%" version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+                    '<svg id="rarity2venft" width="100%" height="100%" version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                     '<image x="0" y="0" width="64" height="64" image-rendering="pixelated" preserveAspectRatio="xMidYMid" xlink:href="data:image/gif;base64,',
                     gif,
                     '"/><text font-family="monospace"><tspan x="13" y="4" font-size="0.25em">Locked RGV:</tspan><tspan id="g" x="38" y="4" font-size="0.25em">',
