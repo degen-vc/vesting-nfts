@@ -24,7 +24,7 @@ contract RarityVeNFT is ERC721, Ownable {
     using Strings for uint16;
 
     uint256 constant SECONDS_PER_DAY = 1 days;
-    string gif;
+    string[] internal _gifParts;
 
     // a mapping from an address to whether or not it can mint / burn
     mapping(address => bool) public controllers;
@@ -46,7 +46,7 @@ contract RarityVeNFT is ERC721, Ownable {
     IDateTime dateTime;
 
     constructor(address _wool, address _dateTime)
-        ERC721("Rarity veNFT", "RveNFT")
+        ERC721("Rarity 2 veNFT", "RveNFT")
     {
         wool = IERC20(_wool);
         dateTime = IDateTime(_dateTime);
@@ -192,12 +192,12 @@ contract RarityVeNFT is ERC721, Ownable {
         controllers[controller] = false;
     }
 
-    /**
-     * uploads a gif for the background of the NFT
-     * @param _gif the base64 encoded GIF
-     */
-    function uploadGIF(string calldata _gif) external onlyOwner {
-        gif = _gif;
+    function uploadGIF(string calldata _gifPart) external onlyOwner {
+        _gifParts.push(_gifPart);
+    }
+
+    function clearGIF() external onlyOwner {
+      delete _gifParts;
     }
 
     function generateSVG(uint256 tokenId)
@@ -205,6 +205,12 @@ contract RarityVeNFT is ERC721, Ownable {
         view
         returns (string memory)
     {
+
+        string memory gif;
+        for (uint i = 0; i < _gifParts.length; i++) {
+            gif = string(abi.encodePacked(gif, _gifParts[i]));
+        }
+
         Pouch memory pouch = pouches[tokenId];
         uint256 duration = uint256(pouch.duration) * SECONDS_PER_DAY;
         uint256 endTime = uint256(pouch.startTimestamp) + duration;
@@ -219,10 +225,10 @@ contract RarityVeNFT is ERC721, Ownable {
         return
             string(
                 abi.encodePacked(
-                    '<svg id="scarcityvenft" width="100%" height="100%" version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
+                    '<svg id="rarity2venft" width="100%" height="100%" version="1.1" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">'
                     '<image x="0" y="0" width="64" height="64" image-rendering="pixelated" preserveAspectRatio="xMidYMid" xlink:href="data:image/gif;base64,',
                     gif,
-                    '"/><text font-family="monospace"><tspan x="13" y="4" font-size="0.25em">Locked SGV:</tspan><tspan id="g" x="38" y="4" font-size="0.25em">',
+                    '"/><text font-family="monospace"><tspan x="13" y="4" font-size="0.25em">Locked RGV:</tspan><tspan id="g" x="38" y="4" font-size="0.25em">',
                     (locked / 1 ether).toString(),
                     '</tspan></text><text font-family="monospace"><tspan x="9" y="9" font-size="0.25em">Unlock Period:</tspan><tspan id="b" x="38" y="9" font-size="0.25em">',
                     (daysRemaining).toString(),
@@ -363,7 +369,7 @@ contract RarityVeNFT is ERC721, Ownable {
         );
         string memory metadata = string(
             abi.encodePacked(
-                '{"name": "Rarity veNFT #',
+                '{"name": "Rarity 2 veNFT #',
                 tokenId.toString(),
                 '","description": "Sellers: before listing, claim any unlocked RGV in your RveNFT on the Rarity 2 site. Buyers: When you purchase a RveNFT, assume the previous owner has already claimed its unlocked RGV. Locked RGV, which unlocks over time, will be displayed on the image. Refresh the metadata to see the most up to date values.",',
                 '"image": "data:image/svg+xml;base64,',
